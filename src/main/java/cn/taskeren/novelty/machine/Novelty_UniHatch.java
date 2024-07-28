@@ -21,7 +21,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidTank;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,21 +34,21 @@ import static gregtech.api.enums.GT_Values.TIER_COLORS;
 import static gregtech.api.enums.GT_Values.VN;
 import static gregtech.api.enums.Textures.BlockIcons.OVERLAY_ME_CRAFTING_INPUT_BUFFER;
 
-public class Novelty_UniHatch
-	extends GT_MetaTileEntity_Hatch_InputBus
+public class Novelty_UniHatch extends GT_MetaTileEntity_Hatch_InputBus
 	implements IDualInputHatch, IAddGregtechLogo, IConfigurationCircuitSupport, IAddUIWidgets {
 
-	// tier   - ULV     LV      MV      HV       EV
-	// total  - 1x2(2)  2x2(4)  3x3(9)  4x4(16)  4x9(36)
-	// items  - 1x1(1)  1x2(2)  2x3(6)  2x4(8)   2x9(18)
-	// fluids - 1x1(1)  1x2(2)  1x3(3)  2x4(8)   2x9(18)
+	// tier     - ULV     LV      MV      HV       EV
+	// total    - 1x2(2)  2x2(4)  3x3(9)  4x4(16)  4x9(36)
+	// items    - 1x1(1)  1x2(2)  2x3(6)  2x4(8)   2x9(18)
+	// fluids   - 1x1(1)  1x2(2)  1x3(3)  2x4(8)   2x9(18)
+	// capacity - 8B      16B     64B     128B     1024B
 
 	// slots for items per tier (0-4, ULV to EV)
 	public static final int[] UNI_HATCH_MAX_ITEM_TIER = new int[]{1, 2, 6, 8, 18};
 	// slots for fluids per tier (0-4, ULV to EV)
 	public static final int[] UNI_HATCH_MAX_FLUID_TIER = new int[]{1, 2, 3, 8, 18};
 	// capacity of fluids per tier (0-4, ULV to EV)
-	public static final int[] UNI_HATCH_MAX_FLUID_CAPACITY_TIER = new int[] {8_000, 16_000, 64_000, 128_000, 1_024_000};
+	public static final int[] UNI_HATCH_MAX_FLUID_CAPACITY_TIER = new int[]{8_000, 16_000, 64_000, 128_000, 1_024_000};
 
 	// slots shown per row
 	public static final int[] UI_SLOTS_PER_ROW = new int[]{1, 2, 3, 4, 9};
@@ -96,8 +98,6 @@ public class Novelty_UniHatch
 
 		this.fluidStacks = new FluidStack[getFluidSlots(aTier)];
 		this.fluidStackTanks = new FluidStackTank[getFluidSlots(aTier)];
-
-		disableSort = true;
 	}
 
 	public Novelty_UniHatch(String aName, int aTier, String[] aDescription, ITexture[][][] aTextures) {
@@ -114,8 +114,6 @@ public class Novelty_UniHatch
 				getFluidCapacity(aTier)
 			);
 		}
-
-		disableSort = true;
 	}
 
 	public static int getItemSlots(int tier) {
@@ -151,12 +149,17 @@ public class Novelty_UniHatch
 	}
 
 	@Override
-	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
-		super.onPostTick(aBaseMetaTileEntity, aTimer);
+	public void onPreTick(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		onPreTickFluid(aBaseMetaTileEntity, aTick);
 
-		if(getBaseMetaTileEntity().isServerSide()) {
-			// do something
-		}
+		super.onPreTick(aBaseMetaTileEntity, aTick);
+	}
+
+	@Override
+	public void onPostTick(IGregTechTileEntity aBaseMetaTileEntity, long aTimer) {
+		onPostTickFluid(aBaseMetaTileEntity, aTimer);
+
+		super.onPostTick(aBaseMetaTileEntity, aTimer);
 	}
 
 	@Override
@@ -233,6 +236,10 @@ public class Novelty_UniHatch
 		return ret.toArray(new String[0]);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////                   GUI                                                                                      ////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	@Override
 	public int getGUIWidth() {
 		return super.getGUIWidth() + 18;
@@ -253,7 +260,10 @@ public class Novelty_UniHatch
 		return 60;
 	}
 
-	public List<IFluidTank> getFluidTanks() {
+	/**
+	 * Convert Array of {@code fluidStackTanks} to List.
+	 */
+	private List<IFluidTank> getFluidTanks() {
 		return Arrays.asList(fluidStackTanks);
 	}
 
@@ -274,6 +284,10 @@ public class Novelty_UniHatch
 		);
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////                   DUAL HATCH                                                                               ////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	@Override
 	public boolean justUpdated() {
 		return true;
@@ -292,5 +306,246 @@ public class Novelty_UniHatch
 	@Override
 	public boolean supportsFluids() {
 		return true;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////                   FLUIDS  -  GT_MetaTileEntity_Hatch_Input                                                 ////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public boolean doesEmptyContainers() {
+		return true;
+	}
+
+	@Override
+	public boolean canTankBeFilled() {
+		return true;
+	}
+
+	@Override
+	public boolean canTankBeEmptied() {
+		return true;
+	}
+
+	@Override
+	public boolean displaysItemStack() {
+		return true;
+	}
+
+	@Override
+	public boolean isFluidInputAllowed(FluidStack aFluid) {
+		return mRecipeMap == null || mRecipeMap.containsInput(aFluid);
+	}
+
+	@Override
+	public int getTankPressure() {
+		return -100;
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////                   FLUIDS  -  GT_MetaTileEntity_Hatch_MultiInput                                            ////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	@Override
+	public boolean displaysStackSize() {
+		return true;
+	}
+
+	public FluidStack[] getStoredFluid() {
+		return fluidStacks;
+	}
+
+	/**
+	 * Returns the maximum types of fluid slots.
+	 * <p>
+	 * The original name is {@code getMaxType()}.
+	 */
+	public int getMaxFluidTypes() {
+		return getFluidSlots(mTier);
+	}
+
+	@Override
+	public FluidStack getFluid() {
+		for(FluidStack fluidStack : fluidStacks) {
+			if(fluidStack != null && fluidStack.amount > 0) {
+				return fluidStack;
+			}
+		}
+		return null;
+	}
+
+	public FluidStack getFluid(int aSlot) {
+		if(fluidStacks == null || aSlot < 0 || aSlot >= getMaxFluidTypes()) return null;
+		return fluidStacks[aSlot];
+	}
+
+	@Override
+	public int getFluidAmount() {
+		var fluid = getFluid();
+		return fluid != null ? fluid.amount : 0;
+	}
+
+	/**
+	 * The fluid capacity per slot.
+	 */
+	@Override
+	public int getCapacity() {
+		return getFluidCapacity(mTier);
+	}
+
+	/**
+	 * The first empty fluid slot.
+	 * <p>
+	 * The original name is {@code getFirstEmptySlot()}.
+	 */
+	public int getFirstEmptyFluidSlot() {
+		for(int i = 0; i < fluidStacks.length; i++) {
+			if(fluidStacks[i] == null) return i;
+		}
+		return -1;
+	}
+
+	public boolean hasFluid(FluidStack aFluid) {
+		if(aFluid == null) return false;
+		for(FluidStack fluidStack : fluidStacks) {
+			if(aFluid.isFluidEqual(fluidStack)) return true;
+		}
+		return false;
+	}
+
+	public int getFluidSlot(FluidStack tFluid) {
+		if(tFluid == null) return -1;
+		for(int i = 0; i < fluidStacks.length; i++) {
+			if(tFluid.isFluidEqual(fluidStacks[i])) return i;
+		}
+		return -1;
+	}
+
+	public int getFluidAmount(FluidStack tFluid) {
+		int tSlot = getFluidSlot(tFluid);
+		if(tSlot != -1) {
+			//noinspection DataFlowIssue - tSlot != -1 can assert that the fluid is not null
+			return fluidStacks[tSlot].amount;
+		}
+		return 0;
+	}
+
+	public void setFluid(FluidStack aFluid, int aSlot) {
+		if(aSlot < 0 || aSlot >= getMaxFluidTypes()) return;
+		fluidStacks[aSlot] = aFluid;
+	}
+
+	public void addFluid(FluidStack aFluid, int aSlot) {
+		if(aSlot < 0 || aSlot >= getMaxFluidTypes()) return;
+		if(aFluid.equals(fluidStacks[aSlot])) fluidStacks[aSlot].amount += aFluid.amount;
+		if(fluidStacks[aSlot] == null) fluidStacks[aSlot] = aFluid.copy();
+	}
+
+	protected void onPreTickFluid(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		if(aBaseMetaTileEntity.isServerSide()) {
+			mFluid = getFluid();
+		}
+	}
+
+	@Override
+	public int fill(FluidStack aFluid, boolean doFill) {
+		if(aFluid == null ||
+			aFluid.getFluid().getID() <= 0 ||
+			aFluid.amount <= 0 ||
+			!canTankBeFilled() ||
+			!isFluidInputAllowed(aFluid)
+		) return 0;
+
+		if(!hasFluid(aFluid) && getFirstEmptyFluidSlot() != -1) {
+			int tFilled = Math.min(aFluid.amount, getCapacity());
+			if(doFill) {
+				FluidStack tFluid = aFluid.copy();
+				tFluid.amount = tFilled;
+				addFluid(tFluid, getFirstEmptyFluidSlot());
+				getBaseMetaTileEntity().markDirty();
+			}
+			return tFilled;
+		}
+
+		if(hasFluid(aFluid)) {
+			int tLeft = getCapacity() - getFluidAmount(aFluid);
+			int tFilled = Math.min(tLeft, aFluid.amount);
+			if(doFill) {
+				FluidStack tFluid = aFluid.copy();
+				tFluid.amount = tFilled;
+				addFluid(tFluid, getFluidSlot(tFluid));
+				getBaseMetaTileEntity().markDirty();
+			}
+			return tFilled;
+		}
+
+		return 0;
+	}
+
+	@Override
+	public FluidStack drain(int maxDrain, boolean doDrain) {
+		if(getFluid() == null || !canTankBeEmptied()) return null;
+		if(getFluid().amount <= 0 && isFluidChangingAllowed()) {
+			setFluid(null, getFluidSlot(getFluid()));
+			getBaseMetaTileEntity().markDirty();
+			return null;
+		}
+		FluidStack tRemove = getFluid().copy();
+		tRemove.amount = Math.min(maxDrain, tRemove.amount);
+		if(doDrain) {
+			getFluid().amount -= tRemove.amount;
+			getBaseMetaTileEntity().markDirty();
+		}
+		if(getFluid() == null || getFluid().amount <= 0 && isFluidChangingAllowed()) {
+			setFluid(null, getFluidSlot(getFluid()));
+			getBaseMetaTileEntity().markDirty();
+		}
+		return tRemove;
+	}
+
+	@Override
+	public int fill(ForgeDirection side, FluidStack aFluid, boolean doFill) {
+		return fill(aFluid, doFill);
+	}
+
+	@Override
+	public FluidStack drain(ForgeDirection side, FluidStack aFluid, boolean doDrain) {
+		if(aFluid == null || !hasFluid(aFluid)) return null;
+		FluidStack tStored = fluidStacks[getFluidSlot(aFluid)];
+		if(tStored.amount <= 0 && isFluidChangingAllowed()) {
+			setFluid(null, getFluidSlot(aFluid));
+			getBaseMetaTileEntity().markDirty();
+			return null;
+		}
+		FluidStack tRemove = tStored.copy();
+		tRemove.amount = Math.min(aFluid.amount, tRemove.amount);
+		if(doDrain) {
+			tStored.amount -= tRemove.amount;
+			getBaseMetaTileEntity().markDirty();
+		}
+		if(tStored.amount <= 0 && isFluidChangingAllowed()) {
+			setFluid(null, getFluidSlot(aFluid));
+			getBaseMetaTileEntity().markDirty();
+		}
+		return tRemove;
+	}
+
+	@Override
+	public FluidTankInfo[] getTankInfo(ForgeDirection side) {
+		FluidTankInfo[] infos = new FluidTankInfo[getMaxFluidTypes()];
+		for(int i = 0; i < getMaxFluidTypes(); i++) {
+			infos[i] = new FluidTankInfo(fluidStacks[i], getCapacity());
+		}
+		return infos;
+	}
+
+	protected void onPostTickFluid(IGregTechTileEntity aBaseMetaTileEntity, long aTick) {
+		if(aBaseMetaTileEntity.isServerSide() && fluidStacks != null) {
+			for(int i = 0; i < getMaxFluidTypes(); i++) {
+				if(fluidStacks[i] != null && fluidStacks[i].amount <= 0) {
+					fluidStacks[i] = null;
+				}
+			}
+		}
 	}
 }
