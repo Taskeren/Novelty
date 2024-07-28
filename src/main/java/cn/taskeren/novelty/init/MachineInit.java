@@ -1,6 +1,7 @@
 package cn.taskeren.novelty.init;
 
 import cn.taskeren.novelty.NoveltyMod;
+import cn.taskeren.novelty.machine.Novelty_BalancedOutputHatch;
 import cn.taskeren.novelty.machine.Novelty_UniHatch;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -17,6 +18,10 @@ public class MachineInit {
 	public static ItemStack UniHatch_MV;
 	public static ItemStack UniHatch_HV;
 	public static ItemStack UniHatch_EV;
+
+	public static ItemStack BalancedOutputHatch_HV;
+	public static ItemStack BalancedOutputHatch_LuV;
+	public static ItemStack BalancedOutputHatch_UHV;
 
 	public static void initMachines() {
 		NoveltyMod.LOG.info("Register machines with ids start from {}", NoveltyId.peek());
@@ -54,6 +59,27 @@ public class MachineInit {
 			"hatch.uni_hatch.tier.4",
 			"UniHatch EV",
 			4
+		).getStackForm(1);
+
+		BalancedOutputHatch_HV = new Novelty_BalancedOutputHatch(
+			NoveltyId.take(),
+			"hatch.balanced_hatch.tier.3",
+			"Balanced Output Hatch HV",
+			3
+		).getStackForm(1);
+
+		BalancedOutputHatch_LuV = new Novelty_BalancedOutputHatch(
+			NoveltyId.take(),
+			"hatch.balanced_hatch.tier.6",
+			"Balanced Output Hatch LuV",
+			6
+		).getStackForm(1);
+
+		BalancedOutputHatch_HV = new Novelty_BalancedOutputHatch(
+			NoveltyId.take(),
+			"hatch.balanced_hatch.tier.9",
+			"Balanced Output Hatch UHV",
+			9
 		).getStackForm(1);
 	}
 
