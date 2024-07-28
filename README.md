@@ -22,3 +22,18 @@ It works with Dual Interfaces from AE2FC, which it can push both Items and Fluid
 |  MV(2) |          6 |           3 |     64,000 L |
 |  HV(3) |          8 |           8 |    128,000 L |
 |  EV(4) |         18 |          18 |  1,024,000 L |
+
+### Ascendant Realm Paracausal Manipulating Unit
+
+![](docs/ARPMU.png)
+
+<details>
+<summary>Other Pictures</summary>
+
+![](docs/ARPMU-on-EBF.png)
+
+</details>
+
+A debug Energy Hatch with a super cool name. You can customize its output Voltage and Amperage in its GUI.
+
+*Credit: The GUI is completely copied from Debug Power Generator from TecTech, under LGPLv3.*

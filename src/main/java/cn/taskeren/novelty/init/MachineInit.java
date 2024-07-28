@@ -1,6 +1,7 @@
 package cn.taskeren.novelty.init;
 
 import cn.taskeren.novelty.NoveltyMod;
+import cn.taskeren.novelty.machine.Novelty_InfinityEnergyHatch;
 import cn.taskeren.novelty.machine.Novelty_UniHatch;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -17,6 +18,8 @@ public class MachineInit {
 	public static ItemStack UniHatch_MV;
 	public static ItemStack UniHatch_HV;
 	public static ItemStack UniHatch_EV;
+
+	public static ItemStack InfinityEnergyHatch;
 
 	public static void initMachines() {
 		NoveltyMod.LOG.info("Register machines with ids start from {}", NoveltyId.peek());
@@ -54,6 +57,16 @@ public class MachineInit {
 			"hatch.uni_hatch.tier.4",
 			"UniHatch EV",
 			4
+		).getStackForm(1);
+
+		// preserved for ongoing Balanced Output Hatches
+		NoveltyId.skip(3);
+
+		InfinityEnergyHatch = new Novelty_InfinityEnergyHatch(
+			NoveltyId.take(),
+			"hatch.infinity_energy_hatch",
+			"Ascendant Realm Paracausal Manipulating Unit",
+			14
 		).getStackForm(1);
 	}
 
