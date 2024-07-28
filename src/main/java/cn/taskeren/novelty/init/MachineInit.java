@@ -75,7 +75,7 @@ public class MachineInit {
 			6
 		).getStackForm(1);
 
-		BalancedOutputHatch_HV = new Novelty_BalancedOutputHatch(
+		BalancedOutputHatch_UHV = new Novelty_BalancedOutputHatch(
 			NoveltyId.take(),
 			"hatch.balanced_hatch.tier.9",
 			"Balanced Output Hatch UHV",
@@ -84,6 +84,8 @@ public class MachineInit {
 	}
 
 	public static void initMachineRecipes() {
+		// uni-hatches
+
 		GT_Values.RA.stdBuilder()
 			.itemInputs(ItemList.Hull_ULV.get(1), ItemList.Hatch_Input_Bus_ULV.get(1), ItemList.Hatch_Input_ULV.get(1))
 			.fluidInputs(Materials.Glue.getFluid(2 * GT_RecipeBuilder.INGOTS))
@@ -162,6 +164,29 @@ public class MachineInit {
 			.itemOutputs(UniHatch_EV)
 			.duration(12 * GT_RecipeBuilder.SECONDS)
 			.eut(TierEU.RECIPE_EV)
+			.addTo(RecipeMaps.assemblerRecipes);
+
+		// balanced output hatches
+
+		GT_Values.RA.stdBuilder()
+			.itemInputs(ItemList.Hatch_Output_HV.get(1), ItemList.Cover_Controller.get(1), ItemList.Cover_FluidDetector.get(1))
+			.itemOutputs(BalancedOutputHatch_HV)
+			.duration(8 * GT_RecipeBuilder.SECONDS)
+			.eut(TierEU.RECIPE_HV)
+			.addTo(RecipeMaps.assemblerRecipes);
+
+		GT_Values.RA.stdBuilder()
+			.itemInputs(ItemList.Hatch_Output_LuV.get(1), ItemList.Cover_Controller.get(1), ItemList.Cover_FluidDetector.get(1))
+			.itemOutputs(BalancedOutputHatch_LuV)
+			.duration(8 * GT_RecipeBuilder.SECONDS)
+			.eut(TierEU.RECIPE_LuV)
+			.addTo(RecipeMaps.assemblerRecipes);
+
+		GT_Values.RA.stdBuilder()
+			.itemInputs(ItemList.Hatch_Output_MAX.get(1), ItemList.Cover_Controller.get(1), ItemList.Cover_FluidDetector.get(1))
+			.itemOutputs(BalancedOutputHatch_UHV)
+			.duration(8 * GT_RecipeBuilder.SECONDS)
+			.eut(TierEU.RECIPE_UHV)
 			.addTo(RecipeMaps.assemblerRecipes);
 	}
 

@@ -24,7 +24,7 @@ public class Novelty_BalancedOutputHatch extends GT_MetaTileEntity_Hatch_Output 
 			"Right click with screwdriver to restrict output",
 			"Can be restricted to put out Items and/or Steam/No Steam/1 specific Fluid",
 			"Restricted Output Hatches are given priority for Multiblock Fluid Output",
-			EnumChatFormatting.BLUE + "Balanced Output Hatches will keep half amount of fluids always.",
+			EnumChatFormatting.BLUE + "Balanced Output Hatches will keep half amount of fluids as always",
 			NoveltyMod.PRESENTED_BY
 		};
 	}
