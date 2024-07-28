@@ -1,6 +1,7 @@
 package cn.taskeren.novelty.init;
 
 import cn.taskeren.novelty.NoveltyMod;
+import cn.taskeren.novelty.machine.Novelty_BalancedOutputHatch;
 import cn.taskeren.novelty.machine.Novelty_InfinityEnergyHatch;
 import cn.taskeren.novelty.machine.Novelty_UniHatch;
 import gregtech.api.enums.GT_Values;
@@ -18,6 +19,10 @@ public class MachineInit {
 	public static ItemStack UniHatch_MV;
 	public static ItemStack UniHatch_HV;
 	public static ItemStack UniHatch_EV;
+
+	public static ItemStack BalancedOutputHatch_HV;
+	public static ItemStack BalancedOutputHatch_LuV;
+	public static ItemStack BalancedOutputHatch_UHV;
 
 	public static ItemStack InfinityEnergyHatch;
 
@@ -59,8 +64,26 @@ public class MachineInit {
 			4
 		).getStackForm(1);
 
-		// preserved for ongoing Balanced Output Hatches
-		NoveltyId.skip(3);
+		BalancedOutputHatch_HV = new Novelty_BalancedOutputHatch(
+			NoveltyId.take(),
+			"hatch.balanced_hatch.tier.3",
+			"Balanced Output Hatch HV",
+			3
+		).getStackForm(1);
+
+		BalancedOutputHatch_LuV = new Novelty_BalancedOutputHatch(
+			NoveltyId.take(),
+			"hatch.balanced_hatch.tier.6",
+			"Balanced Output Hatch LuV",
+			6
+		).getStackForm(1);
+
+		BalancedOutputHatch_UHV = new Novelty_BalancedOutputHatch(
+			NoveltyId.take(),
+			"hatch.balanced_hatch.tier.9",
+			"Balanced Output Hatch UHV",
+			9
+		).getStackForm(1);
 
 		InfinityEnergyHatch = new Novelty_InfinityEnergyHatch(
 			NoveltyId.take(),
@@ -71,6 +94,8 @@ public class MachineInit {
 	}
 
 	public static void initMachineRecipes() {
+		// uni-hatches
+
 		GT_Values.RA.stdBuilder()
 			.itemInputs(ItemList.Hull_ULV.get(1), ItemList.Hatch_Input_Bus_ULV.get(1), ItemList.Hatch_Input_ULV.get(1))
 			.fluidInputs(Materials.Glue.getFluid(2 * GT_RecipeBuilder.INGOTS))
@@ -149,6 +174,29 @@ public class MachineInit {
 			.itemOutputs(UniHatch_EV)
 			.duration(12 * GT_RecipeBuilder.SECONDS)
 			.eut(TierEU.RECIPE_EV)
+			.addTo(RecipeMaps.assemblerRecipes);
+
+		// balanced output hatches
+
+		GT_Values.RA.stdBuilder()
+			.itemInputs(ItemList.Hatch_Output_HV.get(1), ItemList.Cover_Controller.get(1), ItemList.Cover_FluidDetector.get(1))
+			.itemOutputs(BalancedOutputHatch_HV)
+			.duration(8 * GT_RecipeBuilder.SECONDS)
+			.eut(TierEU.RECIPE_HV)
+			.addTo(RecipeMaps.assemblerRecipes);
+
+		GT_Values.RA.stdBuilder()
+			.itemInputs(ItemList.Hatch_Output_LuV.get(1), ItemList.Cover_Controller.get(1), ItemList.Cover_FluidDetector.get(1))
+			.itemOutputs(BalancedOutputHatch_LuV)
+			.duration(8 * GT_RecipeBuilder.SECONDS)
+			.eut(TierEU.RECIPE_LuV)
+			.addTo(RecipeMaps.assemblerRecipes);
+
+		GT_Values.RA.stdBuilder()
+			.itemInputs(ItemList.Hatch_Output_MAX.get(1), ItemList.Cover_Controller.get(1), ItemList.Cover_FluidDetector.get(1))
+			.itemOutputs(BalancedOutputHatch_UHV)
+			.duration(8 * GT_RecipeBuilder.SECONDS)
+			.eut(TierEU.RECIPE_UHV)
 			.addTo(RecipeMaps.assemblerRecipes);
 	}
 
