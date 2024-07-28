@@ -1,5 +1,6 @@
 package cn.taskeren.novelty.init;
 
+import cn.taskeren.novelty.NoveltyMod;
 import cn.taskeren.novelty.machine.Novelty_UniHatch;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.enums.ItemList;
@@ -18,36 +19,38 @@ public class MachineInit {
 	public static ItemStack UniHatch_EV;
 
 	public static void initMachines() {
+		NoveltyMod.LOG.info("Register machines with ids start from {}", NoveltyId.peek());
+
 		UniHatch_ULV = new Novelty_UniHatch(
-			19001,
+			NoveltyId.take(),
 			"hatch.uni_hatch.tier.0",
 			"UniHatch ULV",
 			0
 		).getStackForm(1);
 
 		UniHatch_LV = new Novelty_UniHatch(
-			19002,
+			NoveltyId.take(),
 			"hatch.uni_hatch.tier.1",
 			"UniHatch LV",
 			1
 		).getStackForm(1);
 
 		UniHatch_MV = new Novelty_UniHatch(
-			19003,
+			NoveltyId.take(),
 			"hatch.uni_hatch.tier.2",
 			"UniHatch MV",
 			2
 		).getStackForm(1);
 
 		UniHatch_HV = new Novelty_UniHatch(
-			19004,
+			NoveltyId.take(),
 			"hatch.uni_hatch.tier.3",
 			"UniHatch HV",
 			3
 		).getStackForm(1);
 
 		UniHatch_EV = new Novelty_UniHatch(
-			19005,
+			NoveltyId.take(),
 			"hatch.uni_hatch.tier.4",
 			"UniHatch EV",
 			4
