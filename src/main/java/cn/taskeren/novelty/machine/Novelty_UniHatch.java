@@ -67,13 +67,53 @@ public class Novelty_UniHatch extends GT_MetaTileEntity_Hatch_InputBus
 			this.self = self;
 		}
 
+		private void updateItem() {
+			for(int i = 0; i < self.mInventory.length; i++) {
+				var item = self.mInventory[i];
+				if(GT_Utility.isStackInvalid(item) || i != self.getCircuitSlot() && item.stackSize == 0) {
+					self.mInventory[i] = null;
+				}
+			}
+		}
+
+		private void updateFluid() {
+			for(int i = 0; i < self.fluidStacks.length; i++) {
+				var fluid = self.fluidStacks[i];
+				if(fluid != null && fluid.amount <= 0) {
+					self.fluidStacks[i] = null;
+				}
+			}
+		}
+
+		public boolean isEmpty() {
+			updateItem();
+			updateFluid();
+			for(ItemStack itemStack : self.mInventory) {
+				if(itemStack != null) {
+					return false;
+				}
+			}
+			for(FluidStack fluidStack : self.fluidStacks) {
+				if(fluidStack != null) {
+					return false;
+				}
+			}
+			return true;
+		}
+
 		@Override
 		public ItemStack[] getItemInputs() {
+			if(isEmpty()) {
+				return new ItemStack[0];
+			}
 			return Arrays.stream(self.mInventory).filter(Objects::nonNull).toArray(ItemStack[]::new);
 		}
 
 		@Override
 		public FluidStack[] getFluidInputs() {
+			if(isEmpty()) {
+				return new FluidStack[0];
+			}
 			return Arrays.stream(self.fluidStacks).filter(Objects::nonNull).toArray(FluidStack[]::new);
 		}
 	}
@@ -300,7 +340,7 @@ public class Novelty_UniHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 	@Override
 	public Optional<IDualInputInventory> getFirstNonEmptyInventory() {
-		return Optional.of(uniInventory);
+		return Optional.ofNullable(uniInventory.isEmpty() ? null : uniInventory);
 	}
 
 	@Override
