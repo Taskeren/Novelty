@@ -69,12 +69,12 @@ public class Novelty_UniHatch extends GT_MetaTileEntity_Hatch_InputBus
 
 		@Override
 		public ItemStack[] getItemInputs() {
-			return self.mInventory;
+			return Arrays.stream(self.mInventory).filter(Objects::nonNull).toArray(ItemStack[]::new);
 		}
 
 		@Override
 		public FluidStack[] getFluidInputs() {
-			return self.fluidStacks;
+			return Arrays.stream(self.fluidStacks).filter(Objects::nonNull).toArray(FluidStack[]::new);
 		}
 	}
 
