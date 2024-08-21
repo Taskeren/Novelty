@@ -5,6 +5,10 @@ Novelty, a sort of mass-produced trinkets.
 Currently, Novelty is still gathering thoughts about tiny things on GregTech. When it gets enough stuff, it will be
 officially published to Curse or Modrinth.
 
+## ⚠️ Deprecated!
+
+Novelty has moved to [Overpowered!](https://github.com/ElytraServers/Overpowered)!
+
 ## The Novelties
 
 ### UniHatch
